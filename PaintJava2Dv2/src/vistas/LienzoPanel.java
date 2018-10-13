@@ -21,6 +21,7 @@ import java.awt.geom.Arc2D;
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.Vector;
@@ -36,7 +37,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     private Vector shapesColors = new Vector();
     private Vector grosorShapes = new Vector();
     private Vector rellenoShapes = new Vector();
-    
+
     private boolean relleno = false;
 
     private Color color = Color.BLACK;
@@ -50,6 +51,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     static final int POLYGON = 7;
     static final int GENERAL = 8;
     static final int AREA = 9;
+    static final int GOMA = 10;
 
     private int shapeType = CUBICCURVE2D;
     private int grosor = 1;
@@ -77,11 +79,14 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
             Shape s = (Shape) shapes.get(i);
             g2.setColor((Color) shapesColors.get(i));
             g2.setStroke(new BasicStroke((int) this.grosorShapes.get(i)));
-            if((boolean)this.rellenoShapes.get(i)==true)
+
+            if ((boolean) this.rellenoShapes.get(i) == true) {
                 g2.fill(s);
-            else
+            } else {
                 g2.draw(s);
+            }
         }
+
     }
 
     public void mouseClicked(MouseEvent ev) {
@@ -94,11 +99,24 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     }
 
     public void mousePressed(MouseEvent ev) {
+        if (this.shapeType == GOMA) {
+            int i = contieneShapePont(ev.getPoint());
+            if (i > -1) {
+                this.shapes.remove(i);
+                this.grosorShapes.remove(i);
+                this.shapesColors.remove(i);
+                this.rellenoShapes.remove(i);
+                repaint();
+            }
+            //points.clear();
+        }
         points.add(ev.getPoint());
         pointIndex++;
         //System.err.println(points);
         //System.err.println(pointIndex);
         p = null;
+        System.out.print("\n" + points);
+
     }
 
     public void mouseReleased(MouseEvent ev) {
@@ -159,7 +177,6 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
 
             repaint();
         }
-        //System.err.println("Released");
     }
 
     public void mouseMoved(MouseEvent ev) {
@@ -269,6 +286,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
             this.shapeType = LINE2D;
         } else if (nameShape.equalsIgnoreCase("cubicCurve")) {
             this.shapeType = CUBICCURVE2D;
+        } else if (nameShape.equalsIgnoreCase("goma")) {
+            this.shapeType = GOMA;
         }
     }
 
@@ -283,14 +302,23 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     public void setGrosor(int gr) {
         this.grosor = gr;
     }
-    
-    public void setRelleno(boolean re)
-    {
+
+    public void setRelleno(boolean re) {
         this.relleno = re;
     }
-    
-    public boolean getRelleno()
-    {
+
+    public boolean getRelleno() {
         return this.relleno;
+    }
+
+    private int contieneShapePont(Point p) {
+        for (int i = 0; i < this.shapes.size(); i++) {
+            Shape sh = (Shape) this.shapes.get(i);
+            Point2D p2 = new Point2D.Double(p.x, p.y);
+            if (sh.contains(p2)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

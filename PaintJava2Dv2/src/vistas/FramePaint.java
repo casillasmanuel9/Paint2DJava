@@ -16,6 +16,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JFrame;
+import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -28,14 +29,16 @@ import javax.swing.event.ChangeListener;
 public class FramePaint extends JFrame {
 
     private JButton colorPincel;
+    final private JSlider grosor = new JSlider(1, 10, 1);
     private Vector<JButton> shappes = new Vector<JButton>();
     private Vector<String> shappesNames = new Vector<String>();
+    private Vector<JButton> transformations = new Vector<JButton>();
     private String shapeActual;
     private Color color;
+
     private JPanel panelBotones = new JPanel();
     private LienzoPanel lienzo = new LienzoPanel();
-    final private JSlider grosor = new JSlider(1, 10, 1);
-    private JButton relleno;
+    private JPanel panelTransforms = new JPanel();
 
     public FramePaint() {
         init();
@@ -45,10 +48,19 @@ public class FramePaint extends JFrame {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
         this.setTitle("JAVA2D");
+
+        this.grosor.setMajorTickSpacing(1);
+        //this.grosor.setPaintTrack(true);
+        //this.grosor.setPaintLabels(true);
+        this.grosor.setPaintTicks(true);
+
         createBtnMenu();
         createFigurasBottons();
         createLienzo();
+        createTranforms();
         this.pack();
+        this.setResizable(false);
+        this.setLocationRelativeTo(this);
     }
 
     public void createBtnMenu() {
@@ -83,12 +95,12 @@ public class FramePaint extends JFrame {
     }
 
     public void createFigurasBottons() {
-        String[] shapes = {"Cuadrado","Circulo","Linea","cubicCurve"};
+        String[] shapes = {"Cuadrado", "Circulo", "Linea", "cubicCurve"};
 
-        String[] iconsV = {"gorda 2.png","gorda 3.png","gorda 4.png","CUBICCURVE2D.png"};
+        String[] iconsV = {"gorda 2.png", "gorda 3.png", "gorda 4.png", "CUBICCURVE2D.png"};
 
         for (int i = 0; i < shapes.length; i++) {
-            ImageIcon iconShape = new ImageIcon("src/icons/"+iconsV[i]);
+            ImageIcon iconShape = new ImageIcon("src/icons/" + iconsV[i]);
             JButton btn = new JButton(iconShape);
             btn.setPreferredSize(new Dimension(50, 35));
             String Shape = shapes[i];
@@ -102,59 +114,34 @@ public class FramePaint extends JFrame {
 
             this.shappes.add(btn);
         }
-        
-        String[] controls={"Limpiar","Relleno"};
-        String[] iconsC = {"reset.png","relleno.png"};
-        
+
+        String[] controls = {"Limpiar", "Goma", "Relleno"};
+        String[] iconsC = {"reset.png", "goma.png", "relleno.png"};
+
         for (int i = 0; i < controls.length; i++) {
-            ImageIcon iconShape = new ImageIcon("src/icons/"+iconsC[i]);
+            ImageIcon iconShape = new ImageIcon("src/icons/" + iconsC[i]);
             JButton btn = new JButton(iconShape);
             btn.setPreferredSize(new Dimension(50, 35));
             String control = controls[i];
             btn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if(control.equals("Limpiar")){
+                    if (control.equals("Limpiar")) {
                         lienzo.resetShapes();
-                    }else if(control.equals("Relleno")){
-                        if(lienzo.getRelleno()==true)
-                        {
+                    } else if (control.equals("Relleno")) {
+                        if (lienzo.getRelleno() == true) {
                             lienzo.setRelleno(false);
-                        }else{
+                        } else {
                             lienzo.setRelleno(true);
                         }
+                    } else if (control.equals("Goma")) {
+                        lienzo.setShapeType("goma");
                     }
                 }
             });
 
             this.shappes.add(btn);
         }
-        /*ImageIcon iconShape = new ImageIcon("src/icons/gorda 3.png");
-        JButton btn = new JButton(iconShape);
-        btn.setPreferredSize(new Dimension(50, 35));
-        btn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                shapeActual = "Circulo";
-                lienzo.setShapeType(shapeActual);
-            }
-        });
-
-        this.shappes.add(btn);
-
-        iconShape = new ImageIcon("src/icons/gorda 2.png");
-        btn = new JButton(iconShape);
-        btn.setPreferredSize(new Dimension(50, 35));
-        btn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                shapeActual = "Cuadrado";
-                lienzo.setShapeType(shapeActual);
-            }
-        });
-
-        this.shappes.add(btn);
-*/        
         JPanel figuras = new JPanel();
         figuras.setLayout(new FlowLayout());
         figuras.setPreferredSize(new Dimension(150, 300));
@@ -163,5 +150,31 @@ public class FramePaint extends JFrame {
         }
 
         this.getContentPane().add(figuras, BorderLayout.WEST);
+    }
+
+    public void createTranforms() {
+        String[] transforms = {"Rotacion", "Traslacion", "Escalar", "Cillamineto", "Reflexion"};
+
+        for (int i = 0; i < transforms.length; i++) {
+            JButton btn = new JButton(transforms[i]);
+            btn.setPreferredSize(new Dimension(150, 35));
+            String tr = transforms[i];
+            btn.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    System.err.println(tr);
+                }
+            });
+            this.transformations.add(btn);
+        }
+
+        this.panelTransforms = new JPanel();
+        this.panelTransforms.setLayout(new FlowLayout());
+        this.panelTransforms.setPreferredSize(new Dimension(170, 300));
+        for (int i = 0; i < this.transformations.size(); i++) {
+            panelTransforms.add(this.transformations.get(i));
+        }
+
+        this.getContentPane().add(this.panelTransforms, BorderLayout.EAST);
     }
 }
