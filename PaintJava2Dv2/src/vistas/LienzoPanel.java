@@ -17,6 +17,7 @@ import java.awt.Shape;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Arc2D;
 import java.awt.geom.CubicCurve2D;
 import java.awt.geom.Ellipse2D;
@@ -53,13 +54,24 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     static final int AREA = 9;
     static final int GOMA = 10;
 
+    static final int TRANSLATION = 11;
+    static final int ROTATION = 12;
+    static final int SCALING = 13;
+    static final int SHEARING = 14;
+    static final int REFLECTION = 15;
+
     private int shapeType = CUBICCURVE2D;
+
+    private int indexTransform = -1;
     private int grosor = 1;
     // vector of input points
     Vector points = new Vector();
     int pointIndex = 0;
     Shape partialShape = null;
     Point p = null;
+    Point pT = null; //Transforms
+
+    Shape tempShape = null;
 
     public LienzoPanel() {
         super();
@@ -74,7 +86,6 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         super.paintComponent(g);
         //g.setColor(this.color);
         Graphics2D g2 = (Graphics2D) g;
-
         for (int i = 0; i < shapes.size(); i++) {
             Shape s = (Shape) shapes.get(i);
             g2.setColor((Color) shapesColors.get(i));
@@ -106,9 +117,18 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 this.grosorShapes.remove(i);
                 this.shapesColors.remove(i);
                 this.rellenoShapes.remove(i);
+                this.tempShape = null;
                 repaint();
             }
             //points.clear();
+        } else if (this.shapeType == TRANSLATION || this.shapeType == ROTATION || this.shapeType == SCALING) {
+            int i = contieneShapePont(ev.getPoint());
+            if (i > -1) {
+                this.indexTransform = i;
+                this.tempShape = null;
+                this.pT = ev.getPoint();
+            }
+
         }
         points.add(ev.getPoint());
         pointIndex++;
@@ -127,6 +147,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         //System.err.println(p);
         //System.err.println(p1);
         Shape s = null;
+        Shape trr = null;
+        AffineTransform tr = new AffineTransform();
         switch (shapeType) {
             case RECTANGLE:
                 s = new Rectangle(p1.x, p1.y, p.x - p1.x, p.y - p1.y);
@@ -164,6 +186,41 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                     }
                     ((Polygon) s).addPoint(p.x, p.y);
                 }
+                break;
+
+            case TRANSLATION:
+                p1 = ev.getPoint();
+                tr = new AffineTransform();
+                tr.setToTranslation(p1.x - this.pT.x, p1.y - this.pT.y);
+                drawTransformShape(tr);
+                break;
+
+            case ROTATION:
+                p1 = ev.getPoint();
+                tr = new AffineTransform();
+                double a = Math.atan2(p1.y, p1.x) - Math.atan2(pT.y, pT.x);
+                
+                trr = (Shape) this.shapes.get(indexTransform);
+                tr.setToRotation(a, trr.getBounds2D().getCenterX(), trr.getBounds2D().getCenterY());
+                drawTransformShape(tr);
+                repaint();
+                break;
+
+            case SCALING:
+                p1 = ev.getPoint();
+                Graphics2D g2 = (Graphics2D) g;
+                
+                
+                trr = (Shape) this.shapes.get(indexTransform);
+                g2.translate(trr.getBounds2D().getCenterX(), trr.getBounds2D().getCenterY());
+                double sx = Math.abs((double) (p1.x - trr.getBounds2D().getCenterX()) / (pT.x - trr.getBounds2D().getCenterX()));
+                double sy = Math.abs((double) (p1.y - trr.getBounds2D().getCenterY()) / (pT.y - trr.getBounds2D().getCenterY()));
+                
+                tr.setToScale(sx, sy);
+                
+                Shape sa = tr.createTransformedShape((Shape) this.shapes.get(this.indexTransform));
+                g2.draw(sa);
+                break;
 
         }
         if (s != null) {
@@ -189,6 +246,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         g.setStroke(new BasicStroke(this.grosor));
 
         Point p1 = (Point) points.get(pointIndex - 1);
+
+        AffineTransform tr = new AffineTransform();
         switch (shapeType) {
             case RECTANGLE:
                 if (p != null) {
@@ -269,6 +328,26 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                     g.draw(partialShape);
                 }
                 break;
+
+            case TRANSLATION:
+                p1 = ev.getPoint();
+                tr = new AffineTransform();
+                tr.setToTranslation(p1.x - pT.x, p1.y - pT.y);
+
+                drawTransformShapeTemp(tr);
+                break;
+
+            case ROTATION:
+                p1 = ev.getPoint();
+                double a = Math.atan2(p1.y, p1.x) - Math.atan2(pT.y, pT.x);
+                System.err.println(a);
+
+                Shape trr = (Shape) this.shapes.get(indexTransform);
+                tr.setToRotation(a, trr.getBounds2D().getCenterX(), trr.getBounds2D().getCenterY());
+
+                drawTransformShapeTemp(tr);
+                break;
+
         }
         //System.err.println("Dragged");
     }
@@ -276,6 +355,22 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     public void setColorPincel(Color color) {
         this.color = color;
     }
+
+    public void drawTransformShapeTemp(AffineTransform tr) {
+        Graphics2D g = (Graphics2D) getGraphics();
+        g.setXORMode(Color.white);
+        if (tempShape != null) {
+            g.draw(tempShape);
+        }
+        tempShape = tr.createTransformedShape((Shape) this.shapes.get(indexTransform));
+        g.draw(tempShape);
+    }
+
+    public void drawTransformShape(AffineTransform tr) {
+        this.shapes.set(this.indexTransform, tr.createTransformedShape((Shape) this.shapes.get(this.indexTransform)));
+        repaint();
+    }
+    
 
     public void setShapeType(String nameShape) {
         if (nameShape.equalsIgnoreCase("Circulo")) {
@@ -288,6 +383,12 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
             this.shapeType = CUBICCURVE2D;
         } else if (nameShape.equalsIgnoreCase("goma")) {
             this.shapeType = GOMA;
+        } else if (nameShape.equalsIgnoreCase("Traslacion")) {
+            this.shapeType = TRANSLATION;
+        } else if (nameShape.equals("Rotacion")) {
+            this.shapeType = ROTATION;
+        } else if (nameShape.equals("Escalar")) {
+            this.shapeType = SCALING;
         }
     }
 
@@ -296,6 +397,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         shapesColors = new Vector();
         grosorShapes = new Vector();
         rellenoShapes = new Vector();
+        tempShape = null;
         repaint();
     }
 

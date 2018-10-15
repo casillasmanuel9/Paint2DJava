@@ -162,7 +162,7 @@ public class FramePaint extends JFrame {
             btn.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    System.err.println(tr);
+                    lienzo.setShapeType(tr);
                 }
             });
             this.transformations.add(btn);
