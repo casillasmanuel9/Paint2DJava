@@ -37,8 +37,11 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
 
     private Vector shapes = new Vector();
     private Vector shapesColors = new Vector();
+    private Vector shapesColorsDeg = new Vector();
+    private Vector valDeg = new Vector();
     private Vector grosorShapes = new Vector();
     private Vector rellenoShapes = new Vector();
+    private Vector tipoDeg = new Vector();
 
     private Vector<Integer> iST = new Vector<Integer>();
     private Vector<Double> iSx = new Vector<Double>();
@@ -47,6 +50,10 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     private boolean relleno = false;
 
     private Color color = Color.BLACK;
+    private Color degradado = Color.BLACK;
+    private int valDegradado = 1;
+    private int orDegradado = 1;
+
     static final int RECTANGLE = 0;
     static final int ROUNDRECTANGLE2D = 1;
     static final int ELLIPSE2D = 2;
@@ -94,13 +101,29 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
 
         for (int i = 0; i < shapes.size(); i++) {
             Shape s = (Shape) shapes.get(i);
-            g2.setColor((Color) shapesColors.get(i));
+            //g2.setColor((Color) shapesColors.get(i));
             g2.setStroke(new BasicStroke((int) this.grosorShapes.get(i)));
 
             if ((boolean) this.rellenoShapes.get(i) == true) {
-                g2.setPaint(new GradientPaint(0,0, Color.BLACK, 0,1, Color.BLACK));
+                if ((int)this.tipoDeg.get(i) == 1) {
+                    g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), (int) this.valDeg.get(i), 0, (Color) shapesColorsDeg.get(i)));
+                } else if ((int)this.tipoDeg.get(i) == 2) {
+                    g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), 0, (int) this.valDeg.get(i), (Color) shapesColorsDeg.get(i)));
+                } else if ((int)this.tipoDeg.get(i) == 3) {
+                    g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), (int) this.valDeg.get(i) / 2, (int) this.valDeg.get(i) / 2, (Color) shapesColorsDeg.get(i)));
+                } else if ((int)this.tipoDeg.get(i) == 4) {
+                    g2.setPaint(new GradientPaint((int) this.valDeg.get(i) / 2, (int) this.valDeg.get(i) / 2, (Color) shapesColors.get(i), 0, 100, (Color) shapesColorsDeg.get(i)));
+                } else if ((int)this.tipoDeg.get(i) == 5) {
+                    g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), 0, (int) this.valDeg.get(i), (Color) shapesColorsDeg.get(i), true));
+                } else if ((int)this.tipoDeg.get(i) == 6) {
+                    g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), (int) this.valDeg.get(i), 0, (Color) shapesColorsDeg.get(i), true));
+                } else if ((int)this.tipoDeg.get(i) == 7) {
+                    g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), (int) this.valDeg.get(i)/2, (int) this.valDeg.get(i)/2, (Color) shapesColorsDeg.get(i), true));
+                }
                 g2.fill(s);
             } else {
+
+                g2.setColor((Color) shapesColors.get(i));
                 g2.draw(s);
             }
 
@@ -124,6 +147,9 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 this.shapes.remove(i);
                 this.grosorShapes.remove(i);
                 this.shapesColors.remove(i);
+                this.shapesColorsDeg.remove(i);
+                this.tipoDeg.remove(i);
+                this.valDeg.remove(i);
                 this.rellenoShapes.remove(i);
                 this.tempShape = null;
                 repaint();
@@ -239,7 +265,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 tr.setToShear(shx, shy);
                 drawTransformShape(tr);
                 break;
-            
+
             case REFLECTION:
                 tr.setTransform(-1, 0, 0, 1, 0, 0);
                 drawTransformShape(tr);
@@ -249,6 +275,9 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         if (s != null) {
             shapes.add(s);
             shapesColors.add(this.color);
+            shapesColorsDeg.add(this.degradado);
+            tipoDeg.add(this.orDegradado);
+            valDeg.add(this.valDegradado);
             grosorShapes.add(this.grosor);
             rellenoShapes.add(this.relleno);
             points.clear();
@@ -378,7 +407,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 tr.setToScale(sx, sy);
                 drawTransformShapeTempT(tr);
                 break;
-            
+
             case SHEARING:
                 p1 = ev.getPoint();
                 double shx = ((double) (p1.x - 0) / (pT.x - 0)) - 1;
@@ -386,7 +415,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 tr.setToShear(shx, shy);
                 drawTransformShapeTempT(tr);
                 break;
-                
+
             case REFLECTION:
                 tr.setTransform(-1, 0, 0, 1, 0, 0);
                 drawTransformShapeTempT(tr);
@@ -452,6 +481,9 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     public void resetShapes() {
         shapes = new Vector();
         shapesColors = new Vector();
+        shapesColorsDeg = new Vector();
+        tipoDeg = new Vector();
+        valDeg = new Vector();
         grosorShapes = new Vector();
         rellenoShapes = new Vector();
         tempShape = null;
@@ -479,5 +511,31 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
             }
         }
         return -1;
+    }
+
+    public void setValDegradado(int val) {
+        this.valDegradado = val;
+    }
+
+    public void setDegradado(Color col) {
+        this.degradado = col;
+    }
+
+    public void setOrDegradado(String ori) {
+        if (ori.equalsIgnoreCase("Horizontal")) {
+            this.orDegradado = 1;
+        } else if (ori.equalsIgnoreCase("Vertical")) {
+            this.orDegradado = 2;
+        } else if (ori.equalsIgnoreCase("Diagonal")) {
+            this.orDegradado = 3;
+        } else if (ori.equalsIgnoreCase("Redondo")) {
+            this.orDegradado = 4;
+        } else if (ori.equalsIgnoreCase("H.Ciclico")) {
+            this.orDegradado = 5;
+        } else if (ori.equalsIgnoreCase("V.Ciclico")) {
+            this.orDegradado = 6;
+        } else if (ori.equalsIgnoreCase("D.Ciclico")) {
+            this.orDegradado = 7;
+        }
     }
 }

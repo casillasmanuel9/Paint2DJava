@@ -15,6 +15,7 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JPanel;
@@ -29,7 +30,11 @@ import javax.swing.event.ChangeListener;
 public class FramePaint extends JFrame {
 
     private JButton colorPincel;
+    private JButton colorPincelDeg;
     final private JSlider grosor = new JSlider(1, 10, 1);
+    final private JSlider degradado = new JSlider(1, 1000, 1);
+    private JComboBox combo;
+    
     private Vector<JButton> shappes = new Vector<JButton>();
     private Vector<String> shappesNames = new Vector<String>();
     private Vector<JButton> transformations = new Vector<JButton>();
@@ -54,6 +59,11 @@ public class FramePaint extends JFrame {
         //this.grosor.setPaintLabels(true);
         this.grosor.setPaintTicks(true);
 
+        this.degradado.setMajorTickSpacing(50);
+        //this.grosor.setPaintTrack(true);
+        //this.grosor.setPaintLabels(true);
+        this.degradado.setPaintTicks(true);
+
         createBtnMenu();
         createFigurasBottons();
         createLienzo();
@@ -66,14 +76,14 @@ public class FramePaint extends JFrame {
     public void createBtnMenu() {
         panelBotones.setLayout(new FlowLayout());
 
-        ImageIcon iconColors = new ImageIcon("src/icons/colores.png");
+        ImageIcon iconColors = new ImageIcon("src/icons/colors.png");
         this.colorPincel = new JButton(iconColors);
-        this.colorPincel.setPreferredSize(new Dimension(50, 30));
+        this.colorPincel.setPreferredSize(new Dimension(50, 50));
 
         this.colorPincel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Color newColor = JColorChooser.showDialog(null, "Choose a color", color);
+                Color newColor = JColorChooser.showDialog(null, "Escoge un color", color);
                 lienzo.setColorPincel(newColor);
             }
         });
@@ -84,9 +94,48 @@ public class FramePaint extends JFrame {
                 lienzo.setGrosor(grosor.getValue());
             }
         });
+        
+        iconColors = new ImageIcon("src/icons/degradado.png");
+        this.colorPincelDeg = new JButton(iconColors);
+        this.colorPincelDeg.setPreferredSize(new Dimension(50, 50));
+
+        this.colorPincelDeg.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Color newColorDeg = JColorChooser.showDialog(null, "Escoge un color", color);
+                lienzo.setDegradado(newColorDeg);
+            }
+        });
+
+        this.degradado.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                lienzo.setValDegradado(degradado.getValue());
+            }
+        });
+
+        this.combo = new JComboBox();
+        combo.addItem("Horizontal");
+        combo.addItem("Vertical");
+        combo.addItem("Diagonal");
+        combo.addItem("Redondo");
+        combo.addItem("H.Ciclico");
+        combo.addItem("V.Ciclico");
+        combo.addItem("D.Ciclico");
+
+        // Accion a realizar cuando el JComboBox cambia de item seleccionado.
+        combo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                lienzo.setOrDegradado(combo.getSelectedItem().toString());
+            }
+        });
 
         panelBotones.add(this.colorPincel);
         panelBotones.add(this.grosor);
+        panelBotones.add(this.colorPincelDeg);
+        panelBotones.add(this.degradado);
+        panelBotones.add(combo);
         this.getContentPane().add(panelBotones, BorderLayout.NORTH);
     }
 
