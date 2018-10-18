@@ -5,6 +5,7 @@
  */
 package vistas;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -79,6 +80,15 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     // vector of input points
     Vector points = new Vector();
     int pointIndex = 0;
+    int ruleIndex = -1;
+    int[] rules = {AlphaComposite.CLEAR, AlphaComposite.SRC_OVER,
+        AlphaComposite.DST_OVER, AlphaComposite.SRC_IN,
+        AlphaComposite.DST_IN, AlphaComposite.SRC_OUT,
+        AlphaComposite.DST_OUT, AlphaComposite.SRC,
+        AlphaComposite.DST, AlphaComposite.SRC_ATOP,
+        AlphaComposite.DST_ATOP, AlphaComposite.XOR};
+    float intensidadTrans = 0.5f;
+
     Shape partialShape = null;
     Point p = null;
     Point pT = null; //Transforms
@@ -98,6 +108,10 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         super.paintComponent(g);
         //g.setColor(this.color);
         Graphics2D g2 = (Graphics2D) g;
+        if (ruleIndex > -1) {
+            AlphaComposite ac = AlphaComposite.getInstance(rules[ruleIndex], intensidadTrans);
+            g2.setComposite(ac);
+        }
 
         for (int i = 0; i < shapes.size(); i++) {
             Shape s = (Shape) shapes.get(i);
@@ -105,21 +119,22 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
             g2.setStroke(new BasicStroke((int) this.grosorShapes.get(i)));
 
             if ((boolean) this.rellenoShapes.get(i) == true) {
-                if ((int)this.tipoDeg.get(i) == 1) {
+                if ((int) this.tipoDeg.get(i) == 1) {
                     g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), (int) this.valDeg.get(i), 0, (Color) shapesColorsDeg.get(i)));
-                } else if ((int)this.tipoDeg.get(i) == 2) {
+                } else if ((int) this.tipoDeg.get(i) == 2) {
                     g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), 0, (int) this.valDeg.get(i), (Color) shapesColorsDeg.get(i)));
-                } else if ((int)this.tipoDeg.get(i) == 3) {
+                } else if ((int) this.tipoDeg.get(i) == 3) {
                     g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), (int) this.valDeg.get(i) / 2, (int) this.valDeg.get(i) / 2, (Color) shapesColorsDeg.get(i)));
-                } else if ((int)this.tipoDeg.get(i) == 4) {
+                } else if ((int) this.tipoDeg.get(i) == 4) {
                     g2.setPaint(new GradientPaint((int) this.valDeg.get(i) / 2, (int) this.valDeg.get(i) / 2, (Color) shapesColors.get(i), 0, 100, (Color) shapesColorsDeg.get(i)));
-                } else if ((int)this.tipoDeg.get(i) == 5) {
+                } else if ((int) this.tipoDeg.get(i) == 5) {
                     g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), 0, (int) this.valDeg.get(i), (Color) shapesColorsDeg.get(i), true));
-                } else if ((int)this.tipoDeg.get(i) == 6) {
+                } else if ((int) this.tipoDeg.get(i) == 6) {
                     g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), (int) this.valDeg.get(i), 0, (Color) shapesColorsDeg.get(i), true));
-                } else if ((int)this.tipoDeg.get(i) == 7) {
-                    g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), (int) this.valDeg.get(i)/2, (int) this.valDeg.get(i)/2, (Color) shapesColorsDeg.get(i), true));
+                } else if ((int) this.tipoDeg.get(i) == 7) {
+                    g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), (int) this.valDeg.get(i) / 2, (int) this.valDeg.get(i) / 2, (Color) shapesColorsDeg.get(i), true));
                 }
+
                 g2.fill(s);
             } else {
 
@@ -537,5 +552,16 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         } else if (ori.equalsIgnoreCase("D.Ciclico")) {
             this.orDegradado = 7;
         }
+    }
+
+    public void setRuleIndex(int index) {
+        this.ruleIndex = index;
+        repaint();
+    }
+    
+    public void setIntenTrans(int inten)
+    {
+        this.intensidadTrans = (float)inten/10;
+        repaint();
     }
 }
