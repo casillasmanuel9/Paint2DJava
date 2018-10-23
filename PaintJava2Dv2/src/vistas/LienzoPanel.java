@@ -12,6 +12,7 @@ import java.awt.Dimension;
 import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
@@ -28,6 +29,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.Vector;
+import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
 /**
@@ -43,6 +45,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     private Vector grosorShapes = new Vector();
     private Vector rellenoShapes = new Vector();
     private Vector tipoDeg = new Vector();
+    private Vector tipoTrans = new Vector();
+    private Vector intentTrans = new Vector();
 
     private Vector<Integer> iST = new Vector<Integer>();
     private Vector<Double> iSx = new Vector<Double>();
@@ -112,23 +116,29 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         //g.setColor(this.color);
         Graphics2D g2 = (Graphics2D) g;
         g2.translate(x0, y0);
-        g2.drawLine(-x0, 0, x0, 0);
-        g2.drawLine(0, -y0, 0, y0);
-        if (ruleIndex > -1) {
-            AlphaComposite ac = AlphaComposite.getInstance(rules[ruleIndex], intensidadTrans);
-            g2.setComposite(ac);
-        }
+        g2.drawLine(-200, 0, 200, 0);
+        g2.drawLine(0, -200, 0, 200);
+        ImageIcon image = new ImageIcon("src/icons/mel.jpg");
+        g2.drawImage(image.getImage(),-50,-50,380,240,null);
 
         for (int i = 0; i < shapes.size(); i++) {
             Shape s = (Shape) shapes.get(i);
-            //g2.setColor((Color) shapesColors.get(i));
             g2.setStroke(new BasicStroke((int) this.grosorShapes.get(i)));
+
+            if ((int)this.tipoTrans.get(i) > -1) {
+                AlphaComposite ac = AlphaComposite.getInstance(rules[(int)this.tipoTrans.get(i)],(float) intentTrans.get(i));
+                g2.setComposite(ac);
+            }else
+            {
+                AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f);
+                g2.setComposite(ac);
+            }
 
             if ((boolean) this.rellenoShapes.get(i) == true) {
                 if ((int) this.tipoDeg.get(i) == 1) {
-                    g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), (int) this.valDeg.get(i), 0, (Color) shapesColorsDeg.get(i)));
-                } else if ((int) this.tipoDeg.get(i) == 2) {
                     g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), 0, (int) this.valDeg.get(i), (Color) shapesColorsDeg.get(i)));
+                } else if ((int) this.tipoDeg.get(i) == 2) {
+                    g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), (int) this.valDeg.get(i), 0, (Color) shapesColorsDeg.get(i)));
                 } else if ((int) this.tipoDeg.get(i) == 3) {
                     g2.setPaint(new GradientPaint(0, 0, (Color) shapesColors.get(i), (int) this.valDeg.get(i) / 2, (int) this.valDeg.get(i) / 2, (Color) shapesColorsDeg.get(i)));
                 } else if ((int) this.tipoDeg.get(i) == 4) {
@@ -167,6 +177,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
             if (i > -1) {
                 this.shapes.remove(i);
                 this.grosorShapes.remove(i);
+                this.tipoTrans.remove(i);
+                this.intentTrans.remove(i);
                 this.shapesColors.remove(i);
                 this.shapesColorsDeg.remove(i);
                 this.tipoDeg.remove(i);
@@ -300,6 +312,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
             tipoDeg.add(this.orDegradado);
             valDeg.add(this.valDegradado);
             grosorShapes.add(this.grosor);
+            this.tipoTrans.add(this.ruleIndex);
+            this.intentTrans.add(this.intensidadTrans);
             rellenoShapes.add(this.relleno);
             points.clear();
             pointIndex = 0;
@@ -509,6 +523,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         tipoDeg = new Vector();
         valDeg = new Vector();
         grosorShapes = new Vector();
+        this.tipoTrans = new Vector();
+        this.intentTrans = new Vector();
         rellenoShapes = new Vector();
         tempShape = null;
         repaint();

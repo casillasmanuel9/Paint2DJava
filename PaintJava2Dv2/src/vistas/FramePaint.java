@@ -19,6 +19,9 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import static javax.swing.JFrame.EXIT_ON_CLOSE;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
@@ -71,9 +74,44 @@ public class FramePaint extends JFrame {
         createLienzo();
         createTranforms();
         createPanelBajo();
+        createMenuItem();
         this.pack();
         this.setResizable(false);
         this.setLocationRelativeTo(this);
+    }
+    
+    public void createMenuItem()
+    {
+        JMenuBar barraMenu = new JMenuBar();
+        
+        JMenu archivo = new JMenu("Imagen");
+        JMenuItem abrir = new JMenuItem("Abrir");
+        
+        abrir.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.err.println("Abrir");
+                
+            }
+        });
+        
+        barraMenu.add(archivo);
+        archivo.add(abrir);
+        
+        archivo = new JMenu("Figuras");
+        abrir = new JMenuItem("Crear");
+        abrir.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.err.println("Crear");
+            }
+        });
+        
+        barraMenu.add(archivo);
+        archivo.add(abrir);
+        
+        
+        this.setJMenuBar(barraMenu);
     }
     
     public void createPanelBajo()
