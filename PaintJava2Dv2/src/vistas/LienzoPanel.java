@@ -95,6 +95,9 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
 
     Shape tempShape = null;
 
+    int x0 = 320;
+    int y0 = 240;
+
     public LienzoPanel() {
         super();
         setBackground(Color.white);
@@ -108,6 +111,9 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         super.paintComponent(g);
         //g.setColor(this.color);
         Graphics2D g2 = (Graphics2D) g;
+        g2.translate(x0, y0);
+        g2.drawLine(-x0, 0, x0, 0);
+        g2.drawLine(0, -y0, 0, y0);
         if (ruleIndex > -1) {
             AlphaComposite ac = AlphaComposite.getInstance(rules[ruleIndex], intensidadTrans);
             g2.setComposite(ac);
@@ -209,31 +215,31 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         AffineTransform tr = new AffineTransform();
         switch (shapeType) {
             case RECTANGLE:
-                s = new Rectangle(p1.x, p1.y, p.x - p1.x, p.y - p1.y);
+                s = new Rectangle(p1.x - x0, p1.y - y0, p.x - p1.x, p.y - p1.y);
                 break;
             case ROUNDRECTANGLE2D:
-                s = new RoundRectangle2D.Float(p1.x, p1.y, p.x - p1.x, p.y - p1.y, 10, 10);
+                s = new RoundRectangle2D.Float(p1.x - x0, p1.y - y0, p.x - p1.x, p.y - p1.y, 10, 10);
                 break;
             case ELLIPSE2D:
-                s = new Ellipse2D.Float(p1.x, p1.y, p.x - p1.x, p.y - p1.y);
+                s = new Ellipse2D.Float(p1.x - x0, p1.y - y0, p.x - p1.x, p.y - p1.y);
                 break;
             case ARC2D:
-                s = new Arc2D.Float(p1.x, p1.y, p.x - p1.x, p.y - p1.y, 30, 120, Arc2D.OPEN);
+                s = new Arc2D.Float(p1.x - x0, p1.y - y0, p.x - p1.x, p.y - p1.y, 30, 120, Arc2D.OPEN);
                 break;
             case LINE2D:
-                s = new Line2D.Float(p1.x, p1.y, p.x, p.y);
+                s = new Line2D.Float(p1.x - x0, p1.y - y0, p.x - x0, p.y - y0);
                 break;
             case QUADCURVE2D:
                 if (pointIndex > 1) {
                     Point p2 = (Point) points.get(0);
-                    s = new QuadCurve2D.Float(p2.x, p2.y, p1.x, p1.y, p.x, p.y);
+                    s = new QuadCurve2D.Float(p2.x - x0, p2.y - y0, p1.x - x0, p1.y - y0, p.x - x0, p.y - y0);
                 }
                 break;
             case CUBICCURVE2D:
                 if (pointIndex > 2) {
                     Point p2 = (Point) points.get(pointIndex - 2);
                     Point p3 = (Point) points.get(pointIndex - 3);
-                    s = new CubicCurve2D.Float(p3.x, p3.y, p2.x, p2.y, p1.x, p1.y, p.x, p.y);
+                    s = new CubicCurve2D.Float(p3.x - x0, p3.y - y0, p2.x - x0, p2.y - y0, p1.x - x0, p1.y - y0, p.x - x0, p.y - y0);
                 }
                 break;
             case POLYGON:
@@ -242,7 +248,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                     for (int i = 0; i < pointIndex; i++) {
                         ((Polygon) s).addPoint(((Point) points.get(i)).x, ((Point) points.get(i)).y);
                     }
-                    ((Polygon) s).addPoint(p.x, p.y);
+                    ((Polygon) s).addPoint(p.x - x0, p.y - y0);
                 }
                 break;
 
@@ -256,7 +262,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
             case ROTATION:
                 p1 = ev.getPoint();
                 tr = new AffineTransform();
-                double a = Math.atan2(p1.y, p1.x) - Math.atan2(pT.y, pT.x);
+                double a = Math.atan2(p1.y - y0, p1.x - x0) - Math.atan2(pT.y - y0, pT.x - x0);
 
                 trr = (Shape) this.shapes.get(indexTransform);
                 tr.setToRotation(a, trr.getBounds2D().getCenterX(), trr.getBounds2D().getCenterY());
@@ -266,8 +272,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
 
             case SCALING:
                 p1 = ev.getPoint();
-                double sx = Math.abs((double) (p1.x - 0) / (pT.x - 0));
-                double sy = Math.abs((double) (p1.y - 0) / (pT.y - 0));
+                double sx = Math.abs((double) (p1.x) / (pT.x));
+                double sy = Math.abs((double) (p1.y) / (pT.y));
                 tr.setToScale(sx, sy);
                 drawTransformShape(tr);
 
@@ -275,8 +281,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
 
             case SHEARING:
                 p1 = ev.getPoint();
-                double shx = ((double) (p1.x - 0) / (pT.x - 0)) - 1;
-                double shy = ((double) (p1.y - 0) / (pT.y - 0)) - 1;
+                double shx = ((double) (p1.x) / (pT.x)) - 1;
+                double shy = ((double) (p1.y) / (pT.y)) - 1;
                 tr.setToShear(shx, shy);
                 drawTransformShape(tr);
                 break;
@@ -406,7 +412,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
 
             case ROTATION:
                 p1 = ev.getPoint();
-                double a = Math.atan2(p1.y, p1.x) - Math.atan2(pT.y, pT.x);
+                double a = Math.atan2(p1.y - y0, p1.x - x0) - Math.atan2(pT.y - y0, pT.x - x0);
 
                 Shape trr = (Shape) this.shapes.get(indexTransform);
                 tr.setToRotation(a, trr.getBounds2D().getCenterX(), trr.getBounds2D().getCenterY());
@@ -446,6 +452,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     public void drawTransformShapeTemp(AffineTransform tr) {
         Graphics2D g = (Graphics2D) getGraphics();
         g.setXORMode(Color.white);
+
+        g.translate(x0, y0);
         if (tempShape != null) {
             g.draw(tempShape);
         }
@@ -461,6 +469,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     public void drawTransformShapeTempT(AffineTransform tr) {
         Graphics2D g = (Graphics2D) getGraphics();
         g.setXORMode(Color.white);
+        g.translate(x0, y0);
         if (tempShape != null) {
             g.draw(tempShape);
         }
@@ -520,7 +529,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     private int contieneShapePont(Point p) {
         for (int i = 0; i < this.shapes.size(); i++) {
             Shape sh = (Shape) this.shapes.get(i);
-            Point2D p2 = new Point2D.Double(p.x, p.y);
+            Point2D p2 = new Point2D.Double(p.x - x0, p.y - y0);
             if (sh.contains(p2)) {
                 return i;
             }
@@ -558,10 +567,9 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         this.ruleIndex = index;
         repaint();
     }
-    
-    public void setIntenTrans(int inten)
-    {
-        this.intensidadTrans = (float)inten/10;
+
+    public void setIntenTrans(int inten) {
+        this.intensidadTrans = (float) inten / 10;
         repaint();
     }
 }
