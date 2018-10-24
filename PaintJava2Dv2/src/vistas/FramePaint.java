@@ -6,12 +6,15 @@
 package vistas;
 
 import java.awt.BorderLayout;
+import java.awt.CheckboxMenuItem;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
@@ -23,6 +26,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -38,7 +42,7 @@ public class FramePaint extends JFrame {
     final private JSlider grosor = new JSlider(1, 10, 1);
     final private JSlider degradado = new JSlider(1, 1000, 1);
     private JComboBox combo;
-    
+
     private Vector<JButton> shappes = new Vector<JButton>();
     private Vector<String> shappesNames = new Vector<String>();
     private Vector<JButton> transformations = new Vector<JButton>();
@@ -75,77 +79,101 @@ public class FramePaint extends JFrame {
         createTranforms();
         createPanelBajo();
         createMenuItem();
+        createSubMenuItem();
+        
+        
         this.pack();
         this.setResizable(false);
         this.setLocationRelativeTo(this);
     }
-    
-    public void createMenuItem()
+
+    private void createSubMenuItem()
     {
+        JMenuItem primerElementoMenu = new JMenuItem("Primer Elemento");
+        primerElementoMenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.err.println("holo");
+            }
+        });
+        
+        JPopupMenu miMenuPopup = new JPopupMenu("Menu Popup");
+        miMenuPopup.add(primerElementoMenu);
+        
+        lienzo.setComponentPopupMenu(miMenuPopup);
+    }
+    public void createMenuItem() {
         JMenuBar barraMenu = new JMenuBar();
+        //opciones en la barra
+        JMenu lienzoMenu = new JMenu("Lienzo");
+        JMenu archivo = new JMenu("Archivo");
         
-        JMenu archivo = new JMenu("Imagen");
-        JMenuItem abrir = new JMenuItem("Abrir");
         
-        abrir.addActionListener(new ActionListener() {
+        //Opciones dentro de las opciones del menu
+        JMenu background = new JMenu("Background");
+        
+        JMenuItem imagen = new JMenuItem("Imagen");
+        
+        JMenuItem color = new JMenuItem("Color");
+        color.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.err.println("Abrir");
-                
+                Color newColor = JColorChooser.showDialog(null, "Escoge un color", Color.GRAY);
+                lienzo.setBackGroundLienzo(newColor);
             }
         });
         
-        barraMenu.add(archivo);
-        archivo.add(abrir);
+        background.add(imagen);
+        background.add(color);
+        lienzoMenu.add(background);
         
-        archivo = new JMenu("Figuras");
-        abrir = new JMenuItem("Crear");
-        abrir.addActionListener(new ActionListener() {
+        JMenuItem save = new JMenuItem("Guardar");
+        save.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.err.println("Crear");
+                lienzo.saveImage("prueba", "png");
             }
         });
+        archivo.add(save);
         
+        //agregando a la barra
         barraMenu.add(archivo);
-        archivo.add(abrir);
-        
+        barraMenu.add(lienzoMenu);
         
         this.setJMenuBar(barraMenu);
+        
+        
     }
-    
-    public void createPanelBajo()
-    {
+
+    public void createPanelBajo() {
         JLabel trans = new JLabel("Transparencia");
         JSlider tipoTrans = new JSlider(-1, 11, -1);
         tipoTrans.setMajorTickSpacing(1);
         tipoTrans.setPaintTicks(true);
-        
+
         JSlider inteTrans = new JSlider(0, 10, 5);
         inteTrans.setMajorTickSpacing(1);
         inteTrans.setPaintTicks(true);
-        
-        
-        
+
         tipoTrans.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 lienzo.setRuleIndex(tipoTrans.getValue());
             }
         });
-        
+
         inteTrans.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 lienzo.setIntenTrans(inteTrans.getValue());
             }
         });
-        
+
         this.panelBajo.add(trans);
         this.panelBajo.add(tipoTrans);
         this.panelBajo.add(inteTrans);
-        
-        this.getContentPane().add(panelBajo,BorderLayout.SOUTH);
+
+        this.getContentPane().add(panelBajo, BorderLayout.SOUTH);
     }
 
     public void createBtnMenu() {
@@ -159,7 +187,7 @@ public class FramePaint extends JFrame {
         JLabel degLabel = new JLabel("Degradado: ");
         JLabel nivBorLabel = new JLabel("Nv.Borde: ");
         JLabel nivDegLabel = new JLabel("Nv.Degradado: ");
-        
+
         this.colorPincel.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -174,7 +202,7 @@ public class FramePaint extends JFrame {
                 lienzo.setGrosor(grosor.getValue());
             }
         });
-        
+
         iconColors = new ImageIcon("src/icons/degradado.png");
         this.colorPincelDeg = new JButton(iconColors);
         this.colorPincelDeg.setPreferredSize(new Dimension(50, 50));
@@ -210,8 +238,7 @@ public class FramePaint extends JFrame {
                 lienzo.setOrDegradado(combo.getSelectedItem().toString());
             }
         });
-        
-        
+
         panelBotones.add(colorLabel);
         panelBotones.add(this.colorPincel);
         panelBotones.add(nivBorLabel);
@@ -233,12 +260,10 @@ public class FramePaint extends JFrame {
 
         String[] iconsV = {"gorda 2.png", "gorda 3.png", "gorda 4.png", "CUBICCURVE2D.png"};
 
-        
         JLabel formsLabel = new JLabel("Formas");
         formsLabel.setHorizontalAlignment(0);
-        formsLabel.setPreferredSize(new Dimension(100,35));
-        
-        
+        formsLabel.setPreferredSize(new Dimension(100, 35));
+
         for (int i = 0; i < shapes.length; i++) {
             ImageIcon iconShape = new ImageIcon("src/icons/" + iconsV[i]);
             JButton btn = new JButton(iconShape);

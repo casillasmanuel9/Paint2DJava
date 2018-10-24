@@ -28,8 +28,14 @@ import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.QuadCurve2D;
 import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.Vector;
+import javafx.stage.FileChooser;
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 
 /**
@@ -118,19 +124,18 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         g2.translate(x0, y0);
         g2.drawLine(-200, 0, 200, 0);
         g2.drawLine(0, -200, 0, 200);
-        ImageIcon image = new ImageIcon("src/icons/mel.jpg");
-        g2.drawImage(image.getImage(),-50,-50,380,240,null);
-
+        /*ImageIcon image = new ImageIcon("src/icons/mel.jpg");
+        g2.drawImage(image.getImage(),-320,-240,640,480,null);
+         */
         for (int i = 0; i < shapes.size(); i++) {
             Shape s = (Shape) shapes.get(i);
             g2.setStroke(new BasicStroke((int) this.grosorShapes.get(i)));
 
-            if ((int)this.tipoTrans.get(i) > -1) {
-                AlphaComposite ac = AlphaComposite.getInstance(rules[(int)this.tipoTrans.get(i)],(float) intentTrans.get(i));
+            if ((int) this.tipoTrans.get(i) > -1) {
+                AlphaComposite ac = AlphaComposite.getInstance(rules[(int) this.tipoTrans.get(i)], (float) intentTrans.get(i));
                 g2.setComposite(ac);
-            }else
-            {
-                AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,1.0f);
+            } else {
+                AlphaComposite ac = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
                 g2.setComposite(ac);
             }
 
@@ -587,5 +592,30 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     public void setIntenTrans(int inten) {
         this.intensidadTrans = (float) inten / 10;
         repaint();
+    }
+
+    public void setBackGroundLienzo(Color color) {
+        this.setBackground(color);
+        repaint();
+    }
+
+    public void saveImage(String name, String type) {
+        BufferedImage image = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2 = image.createGraphics();
+        paint(g2);
+        JFileChooser fc = new JFileChooser();
+        int retval = fc.showSaveDialog(this);
+        try {
+            //ImageIO.write(image, type, new File(name + "." + type));    
+            if (retval == JFileChooser.APPROVE_OPTION) {
+                try {
+                    ImageIO.write(image, "jpg", fc.getSelectedFile());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
