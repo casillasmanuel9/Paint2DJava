@@ -80,41 +80,46 @@ public class FramePaint extends JFrame {
         createPanelBajo();
         createMenuItem();
         createSubMenuItem();
-        
-        
+
         this.pack();
         this.setResizable(false);
         this.setLocationRelativeTo(this);
     }
 
-    private void createSubMenuItem()
-    {
-        JMenuItem primerElementoMenu = new JMenuItem("Primer Elemento");
-        primerElementoMenu.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.err.println("holo");
-            }
-        });
-        
-        JPopupMenu miMenuPopup = new JPopupMenu("Menu Popup");
-        miMenuPopup.add(primerElementoMenu);
-        
-        lienzo.setComponentPopupMenu(miMenuPopup);
+    private void createSubMenuItem() {
     }
+
     public void createMenuItem() {
         JMenuBar barraMenu = new JMenuBar();
         //opciones en la barra
         JMenu lienzoMenu = new JMenu("Lienzo");
         JMenu archivo = new JMenu("Archivo");
-        
-        
+
         //Opciones dentro de las opciones del menu
         JMenu background = new JMenu("Background");
-        
+
         JMenuItem imagen = new JMenuItem("Imagen");
-        
+
         JMenuItem color = new JMenuItem("Color");
+/*
+        //asdasdasd
+        JMenuItem primerElementoMenu = new JMenuItem("Propiedades");
+        primerElementoMenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                //if(lienzo.contieneShapePont(e.g))
+                
+            }
+        });
+
+        JPopupMenu miMenuPopup = new JPopupMenu("Menu Popup");
+        
+        miMenuPopup.add(primerElementoMenu);
+        //asdasdasd
+        
+       
+
+        //lienzo.setComponentPopupMenu(miMenuPopup);*/
         color.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -122,11 +127,11 @@ public class FramePaint extends JFrame {
                 lienzo.setBackGroundLienzo(newColor);
             }
         });
-        
+
         background.add(imagen);
         background.add(color);
         lienzoMenu.add(background);
-        
+
         JMenuItem save = new JMenuItem("Guardar");
         save.addActionListener(new ActionListener() {
             @Override
@@ -135,14 +140,13 @@ public class FramePaint extends JFrame {
             }
         });
         archivo.add(save);
-        
+
         //agregando a la barra
         barraMenu.add(archivo);
         barraMenu.add(lienzoMenu);
-        
+
         this.setJMenuBar(barraMenu);
-        
-        
+
     }
 
     public void createPanelBajo() {
@@ -256,9 +260,9 @@ public class FramePaint extends JFrame {
     }
 
     public void createFigurasBottons() {
-        String[] shapes = {"Cuadrado", "Circulo", "Linea", "cubicCurve"};
+        String[] shapes = {"Puntero","Cuadrado", "Circulo", "Linea", "cubicCurve"};
 
-        String[] iconsV = {"gorda 2.png", "gorda 3.png", "gorda 4.png", "CUBICCURVE2D.png"};
+        String[] iconsV = {"puntero.png","gorda 2.png", "gorda 3.png", "gorda 4.png", "CUBICCURVE2D.png"};
 
         JLabel formsLabel = new JLabel("Formas");
         formsLabel.setHorizontalAlignment(0);

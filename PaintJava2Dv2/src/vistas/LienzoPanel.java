@@ -17,6 +17,8 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
 import java.awt.Shape;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -35,8 +37,14 @@ import java.util.Vector;
 import javafx.stage.FileChooser;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.JColorChooser;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.JTextField;
 
 /**
  *
@@ -82,8 +90,9 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     static final int SCALING = 13;
     static final int SHEARING = 14;
     static final int REFLECTION = 15;
+    static final int PUNTERO = 16;
 
-    private int shapeType = CUBICCURVE2D;
+    private int shapeType = PUNTERO;
 
     private int indexTransform = -1;
     private int grosor = 1;
@@ -108,12 +117,45 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     int x0 = 320;
     int y0 = 240;
 
+    JPopupMenu miMenuPopup = new JPopupMenu("cambiar p.shappes");
+
+    //cambiar propiedades
+    int indexPropiedad = 0;
     public LienzoPanel() {
         super();
+        createJpopuMenu();
         setBackground(Color.white);
         setPreferredSize(new Dimension(640, 480));
         addMouseListener(this);
         addMouseMotionListener(this);
+    }
+
+    private void createJpopuMenu() {
+        String[] opcionesJpopuMenu = {"Color Primario", "Color Secundario", "Grosor", "Transparencia", "Degradado"};
+        for (int i = 0; i < opcionesJpopuMenu.length; i++) {
+            JMenuItem primerElementoMenu = new JMenuItem(opcionesJpopuMenu[i]);
+            int index = i;
+            System.out.println(index);
+            primerElementoMenu.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    cambiarPropiedades(primerElementoMenu.getText());
+                }
+            });
+            miMenuPopup.add(primerElementoMenu);
+        }
+    }
+
+    private void cambiarPropiedades(String propiedad) {
+        if (propiedad.equals("Color Primario")) {
+            Color newColor = JColorChooser.showDialog(null, "Escoge un color", color);
+            shapesColors.set(this.indexPropiedad,newColor);
+            repaint();
+        }else if (propiedad.equals("Color Secundario")) {
+            Color newColor = JColorChooser.showDialog(null, "Escoge un color", color);
+            shapesColorsDeg.set(this.indexPropiedad,newColor);
+            repaint();
+        }
     }
 
     @Override
@@ -168,6 +210,19 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     }
 
     public void mouseClicked(MouseEvent ev) {
+        System.out.println("holo");
+        if (ev.getClickCount() == 1) {
+            if (ev.getButton() == MouseEvent.BUTTON1) {
+                System.out.println("click izquierdo");
+            } else {
+                int index = this.contieneShapePont(ev.getPoint());
+                if (index > -1) {
+                    indexPropiedad = index;
+                    this.miMenuPopup.show(this, ev.getX(), ev.getY());
+                }
+
+            }
+        }
     }
 
     public void mouseEntered(MouseEvent ev) {
@@ -177,154 +232,157 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     }
 
     public void mousePressed(MouseEvent ev) {
-        if (this.shapeType == GOMA) {
-            int i = contieneShapePont(ev.getPoint());
-            if (i > -1) {
-                this.shapes.remove(i);
-                this.grosorShapes.remove(i);
-                this.tipoTrans.remove(i);
-                this.intentTrans.remove(i);
-                this.shapesColors.remove(i);
-                this.shapesColorsDeg.remove(i);
-                this.tipoDeg.remove(i);
-                this.valDeg.remove(i);
-                this.rellenoShapes.remove(i);
-                this.tempShape = null;
-                repaint();
-            }
-            //points.clear();
-        } else if (this.shapeType == TRANSLATION || this.shapeType == ROTATION || this.shapeType == SCALING || this.shapeType == SHEARING || this.shapeType == REFLECTION) {
-            int i = contieneShapePont(ev.getPoint());
-            if (i > -1) {
-                this.indexTransform = i;
-                this.tempShape = null;
-                this.pT = ev.getPoint();
-
-                if (this.shapeType == SCALING) {
-                    Shape pAux = (Shape) this.shapes.get(i);
-
-                    this.iST.add(i);
-                    this.iSx.add(pAux.getBounds2D().getCenterX());
-                    this.iSy.add(pAux.getBounds2D().getCenterY());
-
+        if (ev.getButton() == MouseEvent.BUTTON1) {
+            if (this.shapeType == GOMA) {
+                int i = contieneShapePont(ev.getPoint());
+                if (i > -1) {
+                    this.shapes.remove(i);
+                    this.grosorShapes.remove(i);
+                    this.tipoTrans.remove(i);
+                    this.intentTrans.remove(i);
+                    this.shapesColors.remove(i);
+                    this.shapesColorsDeg.remove(i);
+                    this.tipoDeg.remove(i);
+                    this.valDeg.remove(i);
+                    this.rellenoShapes.remove(i);
+                    this.tempShape = null;
+                    repaint();
                 }
+                //points.clear();
+            } else if (this.shapeType == TRANSLATION || this.shapeType == ROTATION || this.shapeType == SCALING || this.shapeType == SHEARING || this.shapeType == REFLECTION) {
+                int i = contieneShapePont(ev.getPoint());
+                if (i > -1) {
+                    this.indexTransform = i;
+                    this.tempShape = null;
+                    this.pT = ev.getPoint();
+
+                    if (this.shapeType == SCALING) {
+                        Shape pAux = (Shape) this.shapes.get(i);
+
+                        this.iST.add(i);
+                        this.iSx.add(pAux.getBounds2D().getCenterX());
+                        this.iSy.add(pAux.getBounds2D().getCenterY());
+
+                    }
+                }
+
             }
-
+            points.add(ev.getPoint());
+            pointIndex++;
+            //System.err.println(points);
+            //System.err.println(pointIndex);
+            p = null;
+            System.out.print("\n" + points);
         }
-        points.add(ev.getPoint());
-        pointIndex++;
-        //System.err.println(points);
-        //System.err.println(pointIndex);
-        p = null;
-        System.out.print("\n" + points);
-
     }
 
     public void mouseReleased(MouseEvent ev) {
-        Graphics g = getGraphics();
-        //g.setColor(this.color);
-        Point p1 = (Point) (points.get(pointIndex - 1));
-        p = ev.getPoint();
-        //System.err.println(p);
-        //System.err.println(p1);
-        Shape s = null;
-        Shape trr = null;
-        AffineTransform tr = new AffineTransform();
-        switch (shapeType) {
-            case RECTANGLE:
-                s = new Rectangle(p1.x - x0, p1.y - y0, p.x - p1.x, p.y - p1.y);
-                break;
-            case ROUNDRECTANGLE2D:
-                s = new RoundRectangle2D.Float(p1.x - x0, p1.y - y0, p.x - p1.x, p.y - p1.y, 10, 10);
-                break;
-            case ELLIPSE2D:
-                s = new Ellipse2D.Float(p1.x - x0, p1.y - y0, p.x - p1.x, p.y - p1.y);
-                break;
-            case ARC2D:
-                s = new Arc2D.Float(p1.x - x0, p1.y - y0, p.x - p1.x, p.y - p1.y, 30, 120, Arc2D.OPEN);
-                break;
-            case LINE2D:
-                s = new Line2D.Float(p1.x - x0, p1.y - y0, p.x - x0, p.y - y0);
-                break;
-            case QUADCURVE2D:
-                if (pointIndex > 1) {
-                    Point p2 = (Point) points.get(0);
-                    s = new QuadCurve2D.Float(p2.x - x0, p2.y - y0, p1.x - x0, p1.y - y0, p.x - x0, p.y - y0);
-                }
-                break;
-            case CUBICCURVE2D:
-                if (pointIndex > 2) {
-                    Point p2 = (Point) points.get(pointIndex - 2);
-                    Point p3 = (Point) points.get(pointIndex - 3);
-                    s = new CubicCurve2D.Float(p3.x - x0, p3.y - y0, p2.x - x0, p2.y - y0, p1.x - x0, p1.y - y0, p.x - x0, p.y - y0);
-                }
-                break;
-            case POLYGON:
-                if (ev.isShiftDown()) {
-                    s = new Polygon();
-                    for (int i = 0; i < pointIndex; i++) {
-                        ((Polygon) s).addPoint(((Point) points.get(i)).x, ((Point) points.get(i)).y);
+        if (ev.getButton() == MouseEvent.BUTTON1) {
+            Graphics g = getGraphics();
+            //g.setColor(this.color);
+            Point p1 = (Point) (points.get(pointIndex - 1));
+            p = ev.getPoint();
+            //System.err.println(p);
+            //System.err.println(p1);
+            Shape s = null;
+            Shape trr = null;
+            AffineTransform tr = new AffineTransform();
+            switch (shapeType) {
+                case RECTANGLE:
+                    s = new Rectangle(p1.x - x0, p1.y - y0, p.x - p1.x, p.y - p1.y);
+                    break;
+                case ROUNDRECTANGLE2D:
+                    s = new RoundRectangle2D.Float(p1.x - x0, p1.y - y0, p.x - p1.x, p.y - p1.y, 10, 10);
+                    break;
+                case ELLIPSE2D:
+                    s = new Ellipse2D.Float(p1.x - x0, p1.y - y0, p.x - p1.x, p.y - p1.y);
+                    break;
+                case ARC2D:
+                    s = new Arc2D.Float(p1.x - x0, p1.y - y0, p.x - p1.x, p.y - p1.y, 30, 120, Arc2D.OPEN);
+                    break;
+                case LINE2D:
+                    s = new Line2D.Float(p1.x - x0, p1.y - y0, p.x - x0, p.y - y0);
+                    break;
+                case QUADCURVE2D:
+                    if (pointIndex > 1) {
+                        Point p2 = (Point) points.get(0);
+                        s = new QuadCurve2D.Float(p2.x - x0, p2.y - y0, p1.x - x0, p1.y - y0, p.x - x0, p.y - y0);
                     }
-                    ((Polygon) s).addPoint(p.x - x0, p.y - y0);
-                }
-                break;
+                    break;
+                case CUBICCURVE2D:
+                    if (pointIndex > 2) {
+                        Point p2 = (Point) points.get(pointIndex - 2);
+                        Point p3 = (Point) points.get(pointIndex - 3);
+                        s = new CubicCurve2D.Float(p3.x - x0, p3.y - y0, p2.x - x0, p2.y - y0, p1.x - x0, p1.y - y0, p.x - x0, p.y - y0);
+                    }
+                    break;
+                case POLYGON:
+                    if (ev.isShiftDown()) {
+                        s = new Polygon();
+                        for (int i = 0; i < pointIndex; i++) {
+                            ((Polygon) s).addPoint(((Point) points.get(i)).x, ((Point) points.get(i)).y);
+                        }
+                        ((Polygon) s).addPoint(p.x - x0, p.y - y0);
+                    }
+                    break;
 
-            case TRANSLATION:
-                p1 = ev.getPoint();
-                tr = new AffineTransform();
-                tr.setToTranslation(p1.x - this.pT.x, p1.y - this.pT.y);
-                drawTransformShape(tr);
-                break;
+                case TRANSLATION:
+                    p1 = ev.getPoint();
+                    tr = new AffineTransform();
+                    tr.setToTranslation(p1.x - this.pT.x, p1.y - this.pT.y);
+                    drawTransformShape(tr);
+                    break;
 
-            case ROTATION:
-                p1 = ev.getPoint();
-                tr = new AffineTransform();
-                double a = Math.atan2(p1.y - y0, p1.x - x0) - Math.atan2(pT.y - y0, pT.x - x0);
+                case ROTATION:
+                    p1 = ev.getPoint();
+                    tr = new AffineTransform();
+                    double a = Math.atan2(p1.y - y0, p1.x - x0) - Math.atan2(pT.y - y0, pT.x - x0);
 
-                trr = (Shape) this.shapes.get(indexTransform);
-                tr.setToRotation(a, trr.getBounds2D().getCenterX(), trr.getBounds2D().getCenterY());
-                drawTransformShape(tr);
+                    trr = (Shape) this.shapes.get(indexTransform);
+                    tr.setToRotation(a, trr.getBounds2D().getCenterX(), trr.getBounds2D().getCenterY());
+                    drawTransformShape(tr);
+                    repaint();
+                    break;
+
+                case SCALING:
+                    p1 = ev.getPoint();
+                    double sx = Math.abs((double) (p1.x) / (pT.x));
+                    double sy = Math.abs((double) (p1.y) / (pT.y));
+                    tr.setToScale(sx, sy);
+                    drawTransformShape(tr);
+
+                    break;
+
+                case SHEARING:
+                    p1 = ev.getPoint();
+                    double shx = ((double) (p1.x) / (pT.x)) - 1;
+                    double shy = ((double) (p1.y) / (pT.y)) - 1;
+                    tr.setToShear(shx, shy);
+                    drawTransformShape(tr);
+                    break;
+
+                case REFLECTION:
+                    tr.setTransform(-1, 0, 0, 1, 0, 0);
+                    drawTransformShape(tr);
+                    break;
+
+            }
+            if (s != null) {
+                shapes.add(s);
+                shapesColors.add(this.color);
+                shapesColorsDeg.add(this.degradado);
+                tipoDeg.add(this.orDegradado);
+                valDeg.add(this.valDegradado);
+                grosorShapes.add(this.grosor);
+                this.tipoTrans.add(this.ruleIndex);
+                this.intentTrans.add(this.intensidadTrans);
+                rellenoShapes.add(this.relleno);
+                points.clear();
+                pointIndex = 0;
+                p = null;
+
                 repaint();
-                break;
-
-            case SCALING:
-                p1 = ev.getPoint();
-                double sx = Math.abs((double) (p1.x) / (pT.x));
-                double sy = Math.abs((double) (p1.y) / (pT.y));
-                tr.setToScale(sx, sy);
-                drawTransformShape(tr);
-
-                break;
-
-            case SHEARING:
-                p1 = ev.getPoint();
-                double shx = ((double) (p1.x) / (pT.x)) - 1;
-                double shy = ((double) (p1.y) / (pT.y)) - 1;
-                tr.setToShear(shx, shy);
-                drawTransformShape(tr);
-                break;
-
-            case REFLECTION:
-                tr.setTransform(-1, 0, 0, 1, 0, 0);
-                drawTransformShape(tr);
-                break;
-
-        }
-        if (s != null) {
-            shapes.add(s);
-            shapesColors.add(this.color);
-            shapesColorsDeg.add(this.degradado);
-            tipoDeg.add(this.orDegradado);
-            valDeg.add(this.valDegradado);
-            grosorShapes.add(this.grosor);
-            this.tipoTrans.add(this.ruleIndex);
-            this.intentTrans.add(this.intensidadTrans);
-            rellenoShapes.add(this.relleno);
-            points.clear();
-            pointIndex = 0;
-            p = null;
-
-            repaint();
+            }
         }
     }
 
@@ -332,6 +390,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     }
 
     public void mouseDragged(MouseEvent ev) {
+
         Graphics2D g = (Graphics2D) getGraphics();
         g.setXORMode(Color.white);
         g.setColor(this.color);
@@ -462,6 +521,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 break;
         }
         //System.err.println("Dragged");
+
     }
 
     public void setColorPincel(Color color) {
@@ -518,6 +578,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
             this.shapeType = SHEARING;
         } else if (nameShape.equals("Reflexion")) {
             this.shapeType = REFLECTION;
+        } else if (nameShape.equals("Puntero")) {
+            this.shapeType = PUNTERO;
         }
     }
 
@@ -547,7 +609,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         return this.relleno;
     }
 
-    private int contieneShapePont(Point p) {
+    public int contieneShapePont(Point p) {
         for (int i = 0; i < this.shapes.size(); i++) {
             Shape sh = (Shape) this.shapes.get(i);
             Point2D p2 = new Point2D.Double(p.x - x0, p.y - y0);
