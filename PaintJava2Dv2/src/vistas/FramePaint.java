@@ -10,6 +10,7 @@ import java.awt.CheckboxMenuItem;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Image;
 import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -62,7 +63,10 @@ public class FramePaint extends JFrame {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setLayout(new BorderLayout());
         this.setTitle("JAVA2D");
-
+        ImageIcon ImageIcon = new ImageIcon("src/icons/logoApp.png");
+        Image image = ImageIcon.getImage();
+        this.setIconImage(image);
+        
         this.grosor.setMajorTickSpacing(1);
         //this.grosor.setPaintTrack(true);
         //this.grosor.setPaintLabels(true);
@@ -101,7 +105,7 @@ public class FramePaint extends JFrame {
         JMenuItem imagen = new JMenuItem("Imagen");
 
         JMenuItem color = new JMenuItem("Color");
-/*
+        /*
         //asdasdasd
         JMenuItem primerElementoMenu = new JMenuItem("Propiedades");
         primerElementoMenu.addActionListener(new ActionListener() {
@@ -260,9 +264,9 @@ public class FramePaint extends JFrame {
     }
 
     public void createFigurasBottons() {
-        String[] shapes = {"Puntero","Cuadrado", "Circulo", "Linea", "cubicCurve"};
+        String[] shapes = {"Puntero", "Cuadrado", "Circulo", "Linea", "cubicCurve"};
 
-        String[] iconsV = {"puntero.png","gorda 2.png", "gorda 3.png", "gorda 4.png", "CUBICCURVE2D.png"};
+        String[] iconsV = {"puntero.png", "gorda 2.png", "gorda 3.png", "gorda 4.png", "CUBICCURVE2D.png"};
 
         JLabel formsLabel = new JLabel("Formas");
         formsLabel.setHorizontalAlignment(0);

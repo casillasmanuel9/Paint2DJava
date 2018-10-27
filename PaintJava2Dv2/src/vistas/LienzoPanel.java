@@ -13,6 +13,7 @@ import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
+import java.awt.Panel;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.Rectangle;
@@ -38,13 +39,17 @@ import javafx.stage.FileChooser;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JColorChooser;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
@@ -121,6 +126,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
 
     //cambiar propiedades
     int indexPropiedad = 0;
+
     public LienzoPanel() {
         super();
         createJpopuMenu();
@@ -149,12 +155,37 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     private void cambiarPropiedades(String propiedad) {
         if (propiedad.equals("Color Primario")) {
             Color newColor = JColorChooser.showDialog(null, "Escoge un color", color);
-            shapesColors.set(this.indexPropiedad,newColor);
+            shapesColors.set(this.indexPropiedad, newColor);
             repaint();
-        }else if (propiedad.equals("Color Secundario")) {
+        } else if (propiedad.equals("Color Secundario")) {
             Color newColor = JColorChooser.showDialog(null, "Escoge un color", color);
-            shapesColorsDeg.set(this.indexPropiedad,newColor);
+            shapesColorsDeg.set(this.indexPropiedad, newColor);
             repaint();
+        } else if (propiedad.equals("Grosor")) {
+            JOptionPane paneProp = new JOptionPane();
+            JSlider slider = new JSlider(1, 10, (int) this.grosorShapes.get(indexPropiedad));
+            slider.setMajorTickSpacing(1);
+            slider.setPaintTicks(true);
+            //slider.setPaintLabels(true);
+            slider.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    JSlider theSlider = (JSlider) e.getSource();
+                    if (!theSlider.getValueIsAdjusting()) {
+                        paneProp.setInputValue(theSlider.getValue());
+                        grosorShapes.set(indexPropiedad, paneProp.getInputValue());
+                        repaint();
+                    }
+                }
+            });
+
+            paneProp.setMessage(new Object[]{"Selecciona el nuevo Grosor: ", slider});
+            paneProp.setMessageType(JOptionPane.QUESTION_MESSAGE);
+            
+            
+            JDialog dialog = paneProp.createDialog(this, "Grosor");
+            dialog.setVisible(true);
+
         }
     }
 
