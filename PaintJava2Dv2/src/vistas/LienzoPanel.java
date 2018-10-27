@@ -47,6 +47,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JSeparator;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
@@ -140,7 +141,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     private void createJpopuMenu() {
         String[] opcionesJpopuMenu = {"Color Primario", "Color Secundario", "Grosor", "Degradado", "Transparencia"};
         for (int i = 0; i < opcionesJpopuMenu.length; i++) {
-            if (!opcionesJpopuMenu[i].equals("Degradado")) {
+            if (!opcionesJpopuMenu[i].equals("Degradado") && !opcionesJpopuMenu[i].equals("Transparencia")) {
                 JMenuItem opcion = new JMenuItem(opcionesJpopuMenu[i]);
                 opcion.addActionListener(new ActionListener() {
                     @Override
@@ -150,6 +151,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 });
                 miMenuPopup.add(opcion);
             } else if (opcionesJpopuMenu[i].equals("Degradado")) {
+                JSeparator separador = new JSeparator();
+                miMenuPopup.add(separador);
                 JMenu deg = new JMenu("Degradado");
                 String[] opcionesDegradado = {"D.Nivel", "D.Tipo"};
                 for (int j = 0; j < opcionesDegradado.length; j++) {
@@ -163,6 +166,22 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                     deg.add(opcion);
                 }
                 miMenuPopup.add(deg);
+            } else if (opcionesJpopuMenu[i].equals("Transparencia")) {
+                JSeparator separador = new JSeparator();
+                miMenuPopup.add(separador);
+                JMenu trans = new JMenu("Transparencia");
+                String[] opcionesTrans = {"T.Nivel", "T.Tipo"};
+                for (int j = 0; j < opcionesTrans.length; j++) {
+                    JMenuItem opcion = new JMenuItem(opcionesTrans[j]);
+                    opcion.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            cambiarPropiedades(opcion.getText());
+                        }
+                    });
+                    trans.add(opcion);
+                }
+                miMenuPopup.add(trans);
             }
         }
     }
@@ -216,9 +235,36 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 }
             });
 
-            paneProp.setMessage(new Object[]{"Selecciona el nuevo Degradado: ", slider});
+            paneProp.setMessage(new Object[]{"Selecciona el nivel de degradado: ", slider});
             paneProp.setMessageType(JOptionPane.QUESTION_MESSAGE);
             JDialog dialog = paneProp.createDialog(this, "Degradado");
+            dialog.setVisible(true);
+        } /*else if (propiedad.equals("D.Tipo"))
+        {
+            
+        } */else if (propiedad.equals("T.Nivel"))
+        {
+            JOptionPane paneProp = new JOptionPane();
+            JSlider slider = new JSlider(1, 10,  Math.round((float)this.intentTrans.get(indexPropiedad)*10));
+            slider.setMajorTickSpacing(1);
+            slider.setPaintTicks(true);
+            //slider.setPaintLabels(true);
+            slider.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    JSlider theSlider = (JSlider) e.getSource();
+                    if (!theSlider.getValueIsAdjusting()) {
+                        paneProp.setInputValue((float)theSlider.getValue());
+                        float val = (float) paneProp.getInputValue()/10.0f;
+                        intentTrans.set(indexPropiedad, val);
+                        repaint();
+                    }
+                }
+            });
+
+            paneProp.setMessage(new Object[]{"Selecciona el nivel de transparencia: ", slider});
+            paneProp.setMessageType(JOptionPane.QUESTION_MESSAGE);
+            JDialog dialog = paneProp.createDialog(this, "Transparencia");
             dialog.setVisible(true);
         }
     }
