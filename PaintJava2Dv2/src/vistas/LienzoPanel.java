@@ -42,6 +42,7 @@ import javax.swing.JColorChooser;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -139,16 +140,30 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     private void createJpopuMenu() {
         String[] opcionesJpopuMenu = {"Color Primario", "Color Secundario", "Grosor", "Degradado", "Transparencia"};
         for (int i = 0; i < opcionesJpopuMenu.length; i++) {
-            JMenuItem primerElementoMenu = new JMenuItem(opcionesJpopuMenu[i]);
-            int index = i;
-            System.out.println(index);
-            primerElementoMenu.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    cambiarPropiedades(primerElementoMenu.getText());
+            if (!opcionesJpopuMenu[i].equals("Degradado")) {
+                JMenuItem opcion = new JMenuItem(opcionesJpopuMenu[i]);
+                opcion.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        cambiarPropiedades(opcion.getText());
+                    }
+                });
+                miMenuPopup.add(opcion);
+            } else if (opcionesJpopuMenu[i].equals("Degradado")) {
+                JMenu deg = new JMenu("Degradado");
+                String[] opcionesDegradado = {"D.Nivel", "D.Tipo"};
+                for (int j = 0; j < opcionesDegradado.length; j++) {
+                    JMenuItem opcion = new JMenuItem(opcionesDegradado[j]);
+                    opcion.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            cambiarPropiedades(opcion.getText());
+                        }
+                    });
+                    deg.add(opcion);
                 }
-            });
-            miMenuPopup.add(primerElementoMenu);
+                miMenuPopup.add(deg);
+            }
         }
     }
 
@@ -183,7 +198,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
             paneProp.setMessageType(JOptionPane.QUESTION_MESSAGE);
             JDialog dialog = paneProp.createDialog(this, "Grosor");
             dialog.setVisible(true);
-        } else if (propiedad.equals("Degradado")) {
+        } else if (propiedad.equals("D.Nivel")) {
             JOptionPane paneProp = new JOptionPane();
             JSlider slider = new JSlider(1, 1000, (int) this.valDeg.get(indexPropiedad));
             slider.setMajorTickSpacing(50);
