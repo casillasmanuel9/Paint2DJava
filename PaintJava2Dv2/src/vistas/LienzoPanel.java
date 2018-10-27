@@ -137,7 +137,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     }
 
     private void createJpopuMenu() {
-        String[] opcionesJpopuMenu = {"Color Primario", "Color Secundario", "Grosor", "Transparencia", "Degradado"};
+        String[] opcionesJpopuMenu = {"Color Primario", "Color Secundario", "Grosor", "Degradado", "Transparencia"};
         for (int i = 0; i < opcionesJpopuMenu.length; i++) {
             JMenuItem primerElementoMenu = new JMenuItem(opcionesJpopuMenu[i]);
             int index = i;
@@ -181,11 +181,30 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
 
             paneProp.setMessage(new Object[]{"Selecciona el nuevo Grosor: ", slider});
             paneProp.setMessageType(JOptionPane.QUESTION_MESSAGE);
-            
-            
             JDialog dialog = paneProp.createDialog(this, "Grosor");
             dialog.setVisible(true);
+        } else if (propiedad.equals("Degradado")) {
+            JOptionPane paneProp = new JOptionPane();
+            JSlider slider = new JSlider(1, 1000, (int) this.valDeg.get(indexPropiedad));
+            slider.setMajorTickSpacing(50);
+            slider.setPaintTicks(true);
+            //slider.setPaintLabels(true);
+            slider.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    JSlider theSlider = (JSlider) e.getSource();
+                    if (!theSlider.getValueIsAdjusting()) {
+                        paneProp.setInputValue(theSlider.getValue());
+                        valDeg.set(indexPropiedad, paneProp.getInputValue());
+                        repaint();
+                    }
+                }
+            });
 
+            paneProp.setMessage(new Object[]{"Selecciona el nuevo Degradado: ", slider});
+            paneProp.setMessageType(JOptionPane.QUESTION_MESSAGE);
+            JDialog dialog = paneProp.createDialog(this, "Degradado");
+            dialog.setVisible(true);
         }
     }
 
