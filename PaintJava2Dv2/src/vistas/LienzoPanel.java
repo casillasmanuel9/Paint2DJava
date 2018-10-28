@@ -39,6 +39,7 @@ import javafx.stage.FileChooser;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -184,6 +185,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 miMenuPopup.add(trans);
             }
         }
+
     }
 
     private void cambiarPropiedades(String propiedad) {
@@ -206,8 +208,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 public void stateChanged(ChangeEvent e) {
                     JSlider theSlider = (JSlider) e.getSource();
                     if (!theSlider.getValueIsAdjusting()) {
-                        paneProp.setInputValue(theSlider.getValue());
-                        grosorShapes.set(indexPropiedad, paneProp.getInputValue());
+                        grosorShapes.set(indexPropiedad, theSlider.getValue());
                         repaint();
                     }
                 }
@@ -239,13 +240,33 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
             paneProp.setMessageType(JOptionPane.QUESTION_MESSAGE);
             JDialog dialog = paneProp.createDialog(this, "Degradado");
             dialog.setVisible(true);
-        } /*else if (propiedad.equals("D.Tipo"))
-        {
-            
-        } */else if (propiedad.equals("T.Nivel"))
-        {
+        } else if (propiedad.equals("D.Tipo")) {
             JOptionPane paneProp = new JOptionPane();
-            JSlider slider = new JSlider(1, 10,  Math.round((float)this.intentTrans.get(indexPropiedad)*10));
+            JComboBox opciones = new JComboBox();
+            opciones.addItem("Horizontal");
+            opciones.addItem("Vertical");
+            opciones.addItem("Diagonal");
+            opciones.addItem("Redondo");
+            opciones.addItem("H.Ciclico");
+            opciones.addItem("V.Ciclico");
+            opciones.addItem("D.Ciclico");
+            opciones.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    tipoDeg.set(indexPropiedad, (int) whathIsOrDegradado(opciones.getSelectedItem().toString()));
+                    repaint();
+
+                }
+            });
+
+            paneProp.setMessage(new Object[]{"Selecciona el nivel de transparencia: ", opciones});
+            paneProp.setMessageType(JOptionPane.QUESTION_MESSAGE);
+            JDialog dialog = paneProp.createDialog(this, "Transparencia");
+            dialog.setVisible(true);
+
+        } else if (propiedad.equals("T.Nivel")) {
+            JOptionPane paneProp = new JOptionPane();
+            JSlider slider = new JSlider(1, 10, Math.round((float) this.intentTrans.get(indexPropiedad) * 10));
             slider.setMajorTickSpacing(1);
             slider.setPaintTicks(true);
             //slider.setPaintLabels(true);
@@ -254,9 +275,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 public void stateChanged(ChangeEvent e) {
                     JSlider theSlider = (JSlider) e.getSource();
                     if (!theSlider.getValueIsAdjusting()) {
-                        paneProp.setInputValue((float)theSlider.getValue());
-                        float val = (float) paneProp.getInputValue()/10.0f;
-                        intentTrans.set(indexPropiedad, val);
+                        intentTrans.set(indexPropiedad, (float) theSlider.getValue() / 10.0f);
                         repaint();
                     }
                 }
@@ -266,6 +285,10 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
             paneProp.setMessageType(JOptionPane.QUESTION_MESSAGE);
             JDialog dialog = paneProp.createDialog(this, "Transparencia");
             dialog.setVisible(true);
+        } else if (propiedad.equals("Desrrellenar")) {
+            rellenoShapes.set(indexPropiedad, false);
+        } else if (propiedad.equals("Rellenar")) {
+            rellenoShapes.set(indexPropiedad, true);
         }
     }
 
@@ -321,7 +344,6 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     }
 
     public void mouseClicked(MouseEvent ev) {
-        System.out.println("holo");
         if (ev.getClickCount() == 1) {
             if (ev.getButton() == MouseEvent.BUTTON1) {
                 System.out.println("click izquierdo");
@@ -329,6 +351,33 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 int index = this.contieneShapePont(ev.getPoint());
                 if (index > -1) {
                     indexPropiedad = index;
+                    
+                    if(miMenuPopup.countComponents()==8)
+                    {
+                        miMenuPopup.remove(7);
+                    }
+                    if ((boolean) this.rellenoShapes.get(indexPropiedad) == true) {
+                        JMenuItem relleno = new JMenuItem("Desrrellenar");
+                        relleno.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                cambiarPropiedades(relleno.getText());
+                                repaint();
+                            }
+                        });
+                        miMenuPopup.add(relleno);
+                    } else {
+                        JMenuItem relleno = new JMenuItem("Rellenar");
+                        relleno.addActionListener(new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent e) {
+                                cambiarPropiedades(relleno.getText());
+                                repaint();
+                            }
+                        });
+                        miMenuPopup.add(relleno);
+                    }
+                    
                     this.miMenuPopup.show(this, ev.getX(), ev.getY());
                 }
 
@@ -755,6 +804,25 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         } else if (ori.equalsIgnoreCase("D.Ciclico")) {
             this.orDegradado = 7;
         }
+    }
+
+    public int whathIsOrDegradado(String ori) {
+        if (ori.equalsIgnoreCase("Horizontal")) {
+            return 1;
+        } else if (ori.equalsIgnoreCase("Vertical")) {
+            return 2;
+        } else if (ori.equalsIgnoreCase("Diagonal")) {
+            return 3;
+        } else if (ori.equalsIgnoreCase("Redondo")) {
+            return 4;
+        } else if (ori.equalsIgnoreCase("H.Ciclico")) {
+            return 5;
+        } else if (ori.equalsIgnoreCase("V.Ciclico")) {
+            return 6;
+        } else if (ori.equalsIgnoreCase("D.Ciclico")) {
+            return 7;
+        }
+        return -1;
     }
 
     public void setRuleIndex(int index) {
