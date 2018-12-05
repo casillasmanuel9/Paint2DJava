@@ -259,7 +259,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 }
             });
 
-            paneProp.setMessage(new Object[]{"Selecciona el nivel de transparencia: ", opciones});
+            paneProp.setMessage(new Object[]{"Selecciona el tipo de degradado: ", opciones});
             paneProp.setMessageType(JOptionPane.QUESTION_MESSAGE);
             JDialog dialog = paneProp.createDialog(this, "Transparencia");
             dialog.setVisible(true);
@@ -285,7 +285,29 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
             paneProp.setMessageType(JOptionPane.QUESTION_MESSAGE);
             JDialog dialog = paneProp.createDialog(this, "Transparencia");
             dialog.setVisible(true);
-        } else if (propiedad.equals("Desrrellenar")) {
+        }else if(propiedad.equals("T.Tipo"))
+        {
+            JOptionPane paneProp = new JOptionPane();
+            JSlider slider = new JSlider(-1, 11, (int)this.tipoTrans.get(indexPropiedad));
+            slider.setMajorTickSpacing(1);
+            slider.setPaintTicks(true);
+            
+             slider.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    JSlider theSlider = (JSlider) e.getSource();
+                    if (!theSlider.getValueIsAdjusting()) {
+                        tipoTrans.set(indexPropiedad, (int) theSlider.getValue());
+                        repaint();
+                    }
+                }
+            });
+            paneProp.setMessage(new Object[]{"Selecciona el tipo de transparencia: ", slider});
+            paneProp.setMessageType(JOptionPane.QUESTION_MESSAGE);
+            JDialog dialog = paneProp.createDialog(this, "Transparencia");
+            dialog.setVisible(true);
+            System.out.println("tipo transparencia");
+        }else if (propiedad.equals("Desrrellenar")) {
             rellenoShapes.set(indexPropiedad, false);
         } else if (propiedad.equals("Rellenar")) {
             rellenoShapes.set(indexPropiedad, true);
