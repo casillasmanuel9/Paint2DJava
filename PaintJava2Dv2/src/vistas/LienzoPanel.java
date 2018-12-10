@@ -76,6 +76,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     private Vector tipoTrans = new Vector();
     private Vector intentTrans = new Vector();
     private Vector<String> image = new Vector<String>();
+    private Vector<Point> puntos = new Vector<Point>();
 
     private Vector<Integer> iST = new Vector<Integer>();
     private Vector<Double> iSx = new Vector<Double>();
@@ -108,7 +109,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
     static final int PUNTERO = 16;
 
     private int shapeType = PUNTERO;
-
+    private int rotateGlobal = 0;
+    
     private int indexTransform = -1;
     private int grosor = 1;
     // vector of input points
@@ -129,8 +131,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
 
     Shape tempShape = null;
 
-    int x0 = 320;
-    int y0 = 240;
+    private int x0 = 320;
+    private int y0 = 240;
 
     JPopupMenu miMenuPopup = new JPopupMenu("cambiar p.shappes");
 
@@ -333,6 +335,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         //g.setColor(this.color);
         Graphics2D g2 = (Graphics2D) g;
         g2.translate(x0, y0);
+        g2.rotate(this.rotateGlobalToPi());
         g2.drawLine(-200, 0, 200, 0);
         g2.drawLine(0, -200, 0, 200);
         /*ImageIcon image = new ImageIcon("src/icons/mel.jpg");
@@ -341,7 +344,8 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         for (int i = 0; i < shapes.size(); i++) {
             Shape s = (Shape) shapes.get(i);
             g2.setStroke(new BasicStroke((int) this.grosorShapes.get(i)));
-
+            //g2.rotate(this.rotateGlobalToPi(),pT.x, pT.y);
+            
             if ((int) this.tipoTrans.get(i) > -1) {
                 AlphaComposite ac = AlphaComposite.getInstance(rules[(int) this.tipoTrans.get(i)], (float) intentTrans.get(i));
                 g2.setComposite(ac);
@@ -457,6 +461,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                     this.shapesColors.remove(i);
                     this.shapesColorsDeg.remove(i);
                     this.image.remove(i);
+                    this.puntos.remove(i);
                     this.tipoDeg.remove(i);
                     this.valDeg.remove(i);
                     this.rellenoShapes.remove(i);
@@ -587,6 +592,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 shapesColors.add(this.color);
                 shapesColorsDeg.add(this.degradado);
                 image.add("");
+                this.puntos.add(new Point(p1.x,p1.y));
                 tipoDeg.add(this.orDegradado);
                 valDeg.add(this.valDegradado);
                 grosorShapes.add(this.grosor);
@@ -617,13 +623,16 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         AffineTransform tr = new AffineTransform();
         switch (shapeType) {
             case RECTANGLE:
+                g.rotate(this.rotateGlobalToPi(),p1.x, p1.y);
                 if (p != null) {
                     g.drawRect(p1.x, p1.y, p.x - p1.x, p.y - p1.y);
                 }
                 p = ev.getPoint();
+                //;
                 g.drawRect(p1.x, p1.y, p.x - p1.x, p.y - p1.y);
                 break;
             case ROUNDRECTANGLE2D:
+                g.rotate(this.rotateGlobalToPi(),p1.x, p1.y);
                 if (p != null) {
                     g.drawRoundRect(p1.x, p1.y, p.x - p1.x, p.y - p1.y, 10, 10);
                 }
@@ -631,6 +640,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 g.drawRoundRect(p1.x, p1.y, p.x - p1.x, p.y - p1.y, 10, 10);
                 break;
             case ELLIPSE2D:
+                g.rotate(this.rotateGlobalToPi(),p1.x, p1.y);
                 if (p != null) {
                     g.drawOval(p1.x, p1.y, p.x - p1.x, p.y - p1.y);
                 }
@@ -638,6 +648,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 g.drawOval(p1.x, p1.y, p.x - p1.x, p.y - p1.y);
                 break;
             case ARC2D:
+                g.rotate(this.rotateGlobalToPi(),p1.x, p1.y);
                 if (p != null) {
                     g.drawArc(p1.x, p1.y, p.x - p1.x, p.y - p1.y, 30, 120);
                 }
@@ -646,6 +657,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 break;
             case LINE2D:
             case POLYGON:
+                g.rotate(this.rotateGlobalToPi(),p1.x, p1.y);
                 if (p != null) {
                     g.drawLine(p1.x, p1.y, p.x, p.y);
                 }
@@ -653,6 +665,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 g.drawLine(p1.x, p1.y, p.x, p.y);
                 break;
             case QUADCURVE2D:
+                g.rotate(this.rotateGlobalToPi(),p1.x, p1.y);
                 if (pointIndex == 1) {
                     if (p != null) {
                         g.drawLine(p1.x, p1.y, p.x, p.y);
@@ -670,6 +683,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
                 }
                 break;
             case CUBICCURVE2D:
+                g.rotate(this.rotateGlobalToPi(),p1.x, p1.y);
                 if (pointIndex == 1) {
                     if (p != null) {
                         g.drawLine(p1.x, p1.y, p.x, p.y);
@@ -804,6 +818,7 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         shapesColors = new Vector();
         shapesColorsDeg = new Vector();
         image = new Vector();
+        puntos = new Vector<Point>();
         tipoDeg = new Vector();
         valDeg = new Vector();
         grosorShapes = new Vector();
@@ -933,4 +948,94 @@ public class LienzoPanel extends JPanel implements MouseListener, MouseMotionLis
         }
         return "";
     }
+    
+    private double rotateGlobalToPi()
+    {
+        if(this.rotateGlobal==0)
+        {
+            return 0;
+        }else if(this.rotateGlobal==1)
+        {
+            return Math.PI/6;
+        }else if(this.rotateGlobal==2)
+        {
+            return Math.PI/4;
+        }else if(this.rotateGlobal==3)
+        {
+            return Math.PI/3;
+        }else if(this.rotateGlobal==4)
+        {
+            return Math.PI/2;
+        }else if(this.rotateGlobal==5)
+        {
+            return (2.0/3.0)*Math.PI;
+        }else if(this.rotateGlobal==6)
+        {
+            return (3.0/4.0)*Math.PI;
+        }else if(this.rotateGlobal==7)
+        {
+            return (5.0/6.0)*Math.PI;
+        }else if(this.rotateGlobal==8)
+        {
+            return Math.PI;
+        }else if(this.rotateGlobal==9)
+        {
+            return (7.0/6.0)*Math.PI;
+        }else if(this.rotateGlobal==10)
+        {
+            return (5.0/4.0)*Math.PI;
+        }else if(this.rotateGlobal==11)
+        {
+            return (4.0/3.0)*Math.PI;
+        }else if(this.rotateGlobal==12)
+        {
+            return (3.0/2.0)*Math.PI;
+        }else if(this.rotateGlobal==13)
+        {
+            return (5.0/3.0)*Math.PI;
+        }else if(this.rotateGlobal==14)
+        {
+            return (7.0/4.0)*Math.PI;
+        }else if(this.rotateGlobal==15)
+        {
+            return (11.0/6.0)*Math.PI;
+        }
+        return 0;
+    }
+    
+    public void setRotateGlobal(int rotate)
+    {
+        this.rotateGlobal = rotate;
+        repaint();
+    }
+    
+    public int getRotateGlobal()
+    {
+        return this.rotateGlobal;
+    }
+    
+    public void setX0(int x)
+    {
+        this.x0 = x;
+        repaint();
+    }
+    
+    public int getX0()
+    {
+        return this.x0;
+    }
+    
+    public void setY0(int y)
+    {
+        this.y0 = y;
+        repaint();
+    }
+    
+    public int getY0()
+    {
+        return this.y0;
+    }
+    
+    
+    
 }

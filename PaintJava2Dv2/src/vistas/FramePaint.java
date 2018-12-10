@@ -54,7 +54,11 @@ public class FramePaint extends JFrame {
     private LienzoPanel lienzo = new LienzoPanel();
     private JPanel panelTransforms = new JPanel();
     private JPanel panelBajo = new JPanel();
-
+    
+    JSlider rotacion = new JSlider(0, 15, this.lienzo.getRotateGlobal());
+    JSlider translateXglobal = new JSlider(0, 640, this.lienzo.getX0());
+    JSlider translateYglobal = new JSlider(0, 480, this.lienzo.getY0());
+    
     public FramePaint() {
         init();
     }
@@ -341,13 +345,79 @@ public class FramePaint extends JFrame {
             });
             this.transformations.add(btn);
         }
-
+        
+        JLabel transGlobal = new JLabel("Transform. Globales:");
+        transGlobal.setPreferredSize(new Dimension(150, 35));
+        
+        JLabel rotateGlobal = new JLabel("Totacion Global:");
+        rotateGlobal.setPreferredSize(new Dimension(150, 35));
+        
+        
+        rotacion.setPreferredSize(new Dimension(150, 35));
+        rotacion.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                lienzo.setRotateGlobal(rotacion.getValue());
+            }
+        });
+        
+        JLabel translateGlobal = new JLabel("Translacion Global:");
+        translateGlobal.setPreferredSize(new Dimension(150, 35));
+        
+        JLabel translateX = new JLabel("X ");
+        translateX.setPreferredSize(new Dimension(20, 35));
+        
+        
+        translateXglobal.setPreferredSize(new Dimension(130, 35));
+        translateXglobal.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                lienzo.setX0(translateXglobal.getValue());
+            }
+        });
+        
+        
+        JLabel translateY = new JLabel("Y ");
+        translateY.setPreferredSize(new Dimension(20, 35));
+        
+        
+        translateYglobal.setPreferredSize(new Dimension(130, 35));
+        translateYglobal.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                lienzo.setY0(translateYglobal.getValue());
+            }
+        });
+        
+        JButton reset = new JButton("Reset");
+        reset.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                lienzo.setRotateGlobal(0);
+                lienzo.setX0(320);
+                lienzo.setY0(240);
+                rotacion.setValue(0);
+                translateXglobal.setValue(320);
+                translateYglobal.setValue(240);
+            }
+        });
+        
         this.panelTransforms = new JPanel();
         this.panelTransforms.setLayout(new FlowLayout());
         this.panelTransforms.setPreferredSize(new Dimension(170, 300));
         for (int i = 0; i < this.transformations.size(); i++) {
             panelTransforms.add(this.transformations.get(i));
         }
+        panelTransforms.add(transGlobal);
+        panelTransforms.add(rotacion);
+        panelTransforms.add(translateGlobal);
+        panelTransforms.add(translateX);
+        panelTransforms.add(translateXglobal);
+        panelTransforms.add(translateY);
+        panelTransforms.add(translateYglobal);
+        panelTransforms.add(reset);
+        
+        
 
         this.getContentPane().add(this.panelTransforms, BorderLayout.EAST);
     }
